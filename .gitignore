@@ -1,18 +1,15 @@
 # Terraform
 .terraform/
+.terraform.lock.hcl
 *.tfstate
-*.tfstate.*
-*.tfvars
+*.tfstate.backup
 
-# Python
-__pycache__/
-*.pyc
+# Lambda build artifacts
+lambda/*.zip
 
-# AWS
-.env
-.aws/
+# CLI outputs
+*.json
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
-
