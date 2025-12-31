@@ -1,0 +1,18 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Python
+__pycache__/
+*.pyc
+
+# AWS
+.env
+.aws/
+
+# OS
+.DS_Store
+Thumbs.db
+
