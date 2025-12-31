@@ -1,0 +1,54 @@
+name: Deploy Event Driven Data Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Package Lambda functions
+        run: |
+          python - << 'EOF'
+          import zipfile
+
+          lambdas = {
+              "ingest": "lambda/ingest.py",
+              "process": "lambda/process.py",
+              "report": "lambda/report.py"
+          }
+
+          for name, path in lambdas.items():
+              with zipfile.ZipFile(f"lambda/{name}.zip", "w", zipfile.ZIP_DEFLATED) as z:
+                  z.write(path, arcname=f"{name}.py")
+
+          print("Lambda packages created")
+          EOF
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-south-1
+        run: terraform apply -auto-approve
